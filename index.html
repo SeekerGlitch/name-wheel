@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Wheel Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        h1 {
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        canvas {
+            margin: 20px auto;
+            display: block;
+            border: 4px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            background: #fff;
+        }
+        
+        input, button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        input {
+            width: 200px;
+            border: 2px solid #ff4081;
+        }
+        
+        button {
+            background: #ff4081;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            background: #e91e63;
+        }
+    </style>
+</head>
+<body>
+    <h1>Name Wheel Generator</h1>
+    <input type="text" id="nameInput" placeholder="Enter a name">
+    <button onclick="addName()">Add Name</button>
+    <button onclick="spinWheel()">Spin</button>
+    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    <p id="result"></p>
+    
+    <script>
+        let names = [];
+        let rotation = 0;
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function addName() {
+            const name = document.getElementById('nameInput').value;
+            if (name) {
+                names.push(name);
+                document.getElementById('nameInput').value = '';
+                drawWheel();
+            }
+        }
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const angle = (2 * Math.PI) / names.length;
+            names.forEach((name, i) => {
+                const startAngle = i * angle + rotation;
+                const endAngle = (i + 1) * angle + rotation;
+                
+                ctx.beginPath();
+                ctx.moveTo(150, 150);
+                ctx.arc(150, 150, 150, startAngle, endAngle);
+                ctx.fillStyle = `hsl(${i * (360 / names.length)}, 100%, 50%)`;
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.save();
+                ctx.translate(150, 150);
+                ctx.rotate(startAngle + angle / 2);
+                ctx.fillStyle = "#fff";
+                ctx.font = "14px Arial";
+                ctx.fillText(name, 80, 5);
+                ctx.restore();
+            });
+        }
+
+        function spinWheel() {
+            if (names.length === 0) return;
+            let spins = Math.random() * 10 + 5;
+            let step = 0;
+            let interval = setInterval(() => {
+                rotation += Math.PI / 10;
+                drawWheel();
+                step++;
+                if (step > spins * 10) {
+                    clearInterval(interval);
+                    const randomIndex = Math.floor(Math.random() * names.length);
+                    document.getElementById('result').innerText = `Selected: ${names[randomIndex]}`;
+                }
+            }, 50);
+        }
+    </script>
+</body>
+</html>
